@@ -1,10 +1,11 @@
 module List where
-import Control.Applicative (liftA2)
-{-
+import Control.Applicative (liftA2, Alternative, (<|>))
+import GHC.Base (Alternative(empty))
+
 data Mylist a = Empty
             | Const a (Mylist a)
             deriving (Show, Eq,Ord,Functor)
--}
+
 -- Example double function Int functions are Functors
 foo = fmap (+2) (+3)
 
@@ -34,7 +35,7 @@ aplicatS = (+2) <$> ((*) <$> Just 5 <*> Just 3)
 
 -- Just 15
 exampleLift = liftA2 (*) (Just 5) (Just 3)
-
+{-
 data Tree a  = Empty 
             | Node a (Tree a) (Tree a)
             deriving (Show,Functor)
@@ -47,7 +48,24 @@ instance Applicative Tree where
     Empty <*> _ = Empty
     _ <*> Empty = Empty
     (Node f izq1 der1) <*> (Node x izq2 der2) = Node (f x) (izq1 <*> izq2) (der1 <*> der2)
+-}
 
+instance Applicative Mylist where
+  pure x = Const x Empty
+  Empty <*> _ = Empty
+  _ <*> Empty = Empty
+  (Const f fs) <*> (Const x xs) = Const (f x) (fs <*> xs)    
+
+instance Alternative Mylist where
+    -- empty :: Mylist
+    empty = Empty
+    (<|>) :: Mylist a -> Mylist a -> Mylist a
+    Empty <|> xs = xs
+    xs <|> Empty = xs
+    (Const x xs) <|> ys = Const x (xs <|> ys)
+
+example :: Maybe Int
+example = Just 1 <|> Nothing
 {-
 instance Applicative Tree  where
     pure :: a .> Tree

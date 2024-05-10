@@ -38,3 +38,10 @@ mergeStringTree :: Tree String -> Tree String -> Tree String
 mergeStringTree Empty t = t
 mergeStringTree t Empty = t
 mergeStringTree (Node x l1 r1) (Node y l2 r2) = Node (x ++ y) (mergeStringTree l1 l2) (mergeStringTree r1 r2)
+
+mergeAllTree :: Ord a => Tree a -> Tree a -> Tree a
+mergeAllTree Empty tree2 = tree2
+mergeAllTree tree1 Empty = tree1
+mergeAllTree (Node a b c) (Node d e f)
+    | a > d     = Node d (mergeAllTree b (Node a c e)) f
+    | otherwise = Node d b (mergeAllTree c (Node a e f))
